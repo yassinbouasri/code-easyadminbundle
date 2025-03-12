@@ -25,6 +25,7 @@ class Answer
     private ?Question $question;
 
     #[ORM\ManyToOne(inversedBy: 'answers')]
+    #[C]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $answeredBy;
 
