@@ -17,16 +17,13 @@ class TopicCrudController extends AbstractCrudController
         return Topic::class;
     }
 
-    /*
+
     public function configureFields(string $pageName): iterable
     {
-        return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
-        ];
+        yield IdField::new('id');
+        yield TextField::new('name');
     }
-    */
+
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
