@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\Topic;
+use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -54,7 +55,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class);
         yield MenuItem::linkToCrud('Answers', 'fas fa-comments', Answer::class);
         yield MenuItem::linkToCrud('Topics', 'fas fa-folder', Topic::class);
-        yield MenuItem::linkToCrud('Users', 'fas fa-users', Question::class);
+        yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
         yield MenuItem::linkToUrl('HomePage', 'fa fa-home', $this->generateUrl('app_homepage'));
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
     }

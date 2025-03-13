@@ -7,6 +7,7 @@ use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -45,6 +46,9 @@ class QuestionCrudController extends AbstractCrudController
                 $queryBuilder->andWhere('entity.enabled = :enabled');
                 $queryBuilder->setParameter('enabled', true);
             });
+        yield AssociationField::new('answers')
+            ->autocomplete()
+            ->setFormType('by_reference', false);
         yield DateField::new('createdAt')
             ->onlyOnIndex();
     }
