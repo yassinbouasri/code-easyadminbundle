@@ -6,6 +6,7 @@ use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AvatarField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -36,7 +37,13 @@ class UserCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnIndex();
+        yield AvatarField::new('avatar')
+            ->onlyOnIndex()
+            ->formatValue(static function ($value, $user) {
+                return $user->getAvatarUrl();
+            });
         yield ImageField::new('avatar')
+            ->onlyOnForms()
             ->setBasePath('uploads/avatars')
             ->setUploadDir('public/uploads/avatars')
             ->setUploadedFileNamePattern('[slug]-[timestamp]-[filename].[extension]');
