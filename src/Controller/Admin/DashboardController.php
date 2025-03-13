@@ -6,6 +6,7 @@ use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\Topic;
 use App\Entity\User;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -18,6 +19,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+#[AdminDashboard(routes: [
+    'edit' => ['routePath' => '/{entityId}/edit', 'routeName' => 'edit'],
+])]
 class DashboardController extends AbstractDashboardController
 {
     #[IsGranted("ROLE_ADMIN")]
@@ -57,7 +61,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Topics', 'fas fa-folder', Topic::class);
         yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
         yield MenuItem::linkToUrl('HomePage', 'fa fa-home', $this->generateUrl('app_homepage'));
-        // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
     }
 
     public function configureActions(): Actions

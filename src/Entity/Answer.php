@@ -93,6 +93,6 @@ class Answer
     }
     public function __toString(): string
     {
-        return substr( $this->getAnswer(), 0, 20) . '...';
+        return $this->getAnswer();
     }
 }

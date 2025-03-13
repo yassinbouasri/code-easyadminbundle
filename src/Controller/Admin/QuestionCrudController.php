@@ -4,16 +4,13 @@ namespace App\Controller\Admin;
 
 use App\Entity\Question;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class QuestionCrudController extends AbstractCrudController
@@ -28,6 +25,9 @@ class QuestionCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnIndex();
+        yield Field::new('slug')
+            ->hideOnIndex()
+            ->setFormTypeOption('disabled', $pageName !== Crud::PAGE_NEW);
         yield TextField::new('name');
         yield AssociationField::new('topic')
             ->autocomplete();
