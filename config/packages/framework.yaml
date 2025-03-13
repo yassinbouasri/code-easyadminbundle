@@ -22,3 +22,13 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+
+easy_admin:
+    entities:
+        User:
+            class: App\Entity\User
+            # Ensure the entity is properly configured
+            edit:
+                fields:
+                    - { property: 'id', label: 'ID' }
+                    - { property: 'username', label: 'Username' }
