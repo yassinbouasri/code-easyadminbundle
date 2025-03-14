@@ -72,4 +72,5 @@ class QuestionController extends AbstractController
             'slug' => $question->getSlug()
         ]);
     }
+
 }

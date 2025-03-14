@@ -54,4 +54,13 @@ class QuestionCrudController extends AbstractCrudController
             ->onlyOnIndex();
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+            ->setDefaultSort([
+                'askedBy.enabled' => 'DESC',
+                'createdAt' => 'DESC',
+                             ]);
+    }
+
 }

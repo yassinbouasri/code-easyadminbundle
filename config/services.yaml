@@ -31,3 +31,4 @@ services:
     App\EasyAdmin\TruncateLongTextConfigurator:
         tags:
             - { name: 'ea.field_configurator', priority: -1 }
+

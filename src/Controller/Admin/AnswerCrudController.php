@@ -23,7 +23,8 @@ class AnswerCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
                      ->onlyOnIndex();
-        yield Field::new('answer');
+        yield Field::new('answer')
+            ->setSortable(false);
         yield VotesField::new('votes');
         yield AssociationField::new('question')
                               ->hideOnIndex();
