@@ -1,0 +1,11 @@
+# config/packages/easy_admin.yaml
+easy_admin:
+  # Define your entities here
+  entities:
+    - App\Entity\Topic  # Replace with your entity class
+    - App\Entity\User   # Add other entities as needed
+  # Configure the dashboard
+  site_name: 'Admin Panel'
+  main_menu:
+    - { label: 'Topics', entity: 'Topic', icon: 'folder' }  # Simple menu item for the Topic entity
+    - { label: 'Users', entity: 'User', icon: 'user' }       # Add other menu items
