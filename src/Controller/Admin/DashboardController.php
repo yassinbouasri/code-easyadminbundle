@@ -25,21 +25,23 @@ use Symfony\UX\Chartjs\Model\Chart;
 
 class DashboardController extends AbstractDashboardController
 {
-    public function __construct(private QuestionRepository $questionRepository, private ChartBuilderInterface $chartBuilder)
+    public function __construct(private QuestionRepository $questionRepository)
     {
     }
 
     #[IsGranted("ROLE_ADMIN")]
     #[Route('/admin', name: 'admin')]
-    public function index(): Response
+    public function index(ChartBuilderInterface $chartBuilder = null): Response
     {
+        assert($chartBuilder !== null);
+
         $latestQuestions =  $this->questionRepository->findLatest();
         $topVoted = $this->questionRepository->findTopVoted();
 
         return $this->render('admin/index.html.twig', [
             'latestQuestions' => $latestQuestions,
             'topVoted' => $topVoted,
-            'chart' => $this->createChart(),
+            'chart' => $this->createChart($chartBuilder),
         ]);
     }
 
@@ -80,9 +82,9 @@ class DashboardController extends AbstractDashboardController
             ->setDefaultSort(['id' => 'DESC']);
     }
 
-    private function createChart(): Chart
+    private function createChart(ChartBuilderInterface $chartBuilder): Chart
     {
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
+        $chart = $chartBuilder->createChart(Chart::TYPE_LINE);
         $chart->setData([
                             'labels' => ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                             'datasets' => [
