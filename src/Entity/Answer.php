@@ -94,6 +94,6 @@ class Answer
     }
     public function __toString(): string
     {
-        return u($this->getAnswer())->truncate(15, '...', false);
+        return u($this->getId() . ' - ' . $this->getAnswer())->truncate(15, '...', false);
     }
 }

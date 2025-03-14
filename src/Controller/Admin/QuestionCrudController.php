@@ -63,7 +63,7 @@ class QuestionCrudController extends AbstractCrudController
             });
         yield AssociationField::new('answers')
             ->autocomplete()
-            ->setFormType('by_reference', false);
+            ->setFormTypeOption('by_reference', false);
         yield DateField::new('createdAt')
             ->onlyOnIndex();
     }
