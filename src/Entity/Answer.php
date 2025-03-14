@@ -6,6 +6,7 @@ use App\Repository\AnswerRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use function Symfony\Component\String\u;
 
 #[ORM\Entity(AnswerRepository::class)]
 class Answer
@@ -93,6 +94,6 @@ class Answer
     }
     public function __toString(): string
     {
-        return $this->getAnswer();
+        return u($this->getAnswer())->truncate(15, '...', false);
     }
 }
