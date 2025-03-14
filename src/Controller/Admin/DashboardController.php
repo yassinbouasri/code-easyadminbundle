@@ -25,21 +25,23 @@ use Symfony\UX\Chartjs\Model\Chart;
 
 class DashboardController extends AbstractDashboardController
 {
-    public function __construct(private QuestionRepository $questionRepository, private ChartBuilderInterface $chartBuilder)
+    public function __construct(private QuestionRepository $questionRepository)
     {
     }
 
     #[IsGranted("ROLE_ADMIN")]
     #[Route('/admin', name: 'admin')]
-    public function index(): Response
+    public function index(ChartBuilderInterface $chartBuilder = null): Response
     {
+        assert($chartBuilder !== null);
+
         $latestQuestions =  $this->questionRepository->findLatest();
         $topVoted = $this->questionRepository->findTopVoted();
 
         return $this->render('admin/index.html.twig', [
             'latestQuestions' => $latestQuestions,
             'topVoted' => $topVoted,
-            'chart' => $this->createChart(),
+            'chart' => $this->createChart($chartBuilder),
         ]);
     }
 
@@ -52,7 +54,8 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class);
+        yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class)
+            ->setPermission('ROLE_MODERATOR');
         yield MenuItem::linkToCrud('Answers', 'fas fa-comments', Answer::class);
         yield MenuItem::linkToCrud('Topics', 'fas fa-folder', Topic::class);
         yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
@@ -77,12 +80,13 @@ class DashboardController extends AbstractDashboardController
     public function configureCrud(): Crud
     {
         return parent::configureCrud()
-            ->setDefaultSort(['id' => 'DESC']);
+            ->setDefaultSort(['id' => 'DESC'])
+            ->overrideTemplate('crud/field/id', 'admin/id_with_icon.html.twig');
     }
 
-    private function createChart(): Chart
+    private function createChart(ChartBuilderInterface $chartBuilder): Chart
     {
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
+        $chart = $chartBuilder->createChart(Chart::TYPE_LINE);
         $chart->setData([
                             'labels' => ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                             'datasets' => [
@@ -110,6 +114,8 @@ class DashboardController extends AbstractDashboardController
         return parent::configureAssets()
             ->addWebpackEncoreEntry('admin');
     }
+
+
 
 
 }

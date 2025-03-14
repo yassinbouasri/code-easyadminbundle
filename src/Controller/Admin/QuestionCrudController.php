@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\EasyAdmin\VotesField;
 use App\Entity\Question;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -61,7 +63,7 @@ class QuestionCrudController extends AbstractCrudController
             });
         yield AssociationField::new('answers')
             ->autocomplete()
-            ->setFormType('by_reference', false);
+            ->setFormTypeOption('by_reference', false);
         yield DateField::new('createdAt')
             ->onlyOnIndex();
     }
@@ -73,5 +75,15 @@ class QuestionCrudController extends AbstractCrudController
                 'askedBy.enabled' => 'DESC',
                 'createdAt' => 'DESC',
                              ]);
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)
+            ->setPermission(Action::INDEX, 'ROLE_MODERATOR')
+            ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
+            ->setPermission(Action::DELETE, 'ROLE_SUPER_ADMIN')
+            ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
+            ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN');
     }
 }

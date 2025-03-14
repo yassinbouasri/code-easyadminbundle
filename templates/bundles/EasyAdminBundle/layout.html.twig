@@ -1,0 +1,12 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block content_footer %}
+    Made with 🤍 by the guys and gals at SymfonyCasts
+{% endblock %}
+
+{% block main_menu_wrapper %}
+    {% if ea.crud.currentAction is not defined or (ea.crud.currentAction != 'edit' and ea.crud.currentAction != 'detail') %}
+        {#                                    fixing entity id not found#}
+        {{ include(ea.templatePath('main_menu')) }}
+    {% endif %}
+{% endblock main_menu_wrapper %}
