@@ -27,7 +27,9 @@ class AnswerCrudController extends AbstractCrudController
             ->setSortable(false);
         yield VotesField::new('votes');
         yield AssociationField::new('question')
-                              ->hideOnIndex();
+            ->autocomplete()
+            ->setCrudController(QuestionCrudController::class)
+            ->hideOnIndex();
         yield AssociationField::new('answeredBy');
         yield Field::new('createdAt')
                    ->hideOnForm();
