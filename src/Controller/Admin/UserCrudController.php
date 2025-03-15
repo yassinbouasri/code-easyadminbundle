@@ -3,8 +3,14 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AvatarField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -39,8 +45,8 @@ class UserCrudController extends AbstractCrudController
             ->onlyOnIndex();
         yield AvatarField::new('avatar')
             ->onlyOnIndex()
-            ->formatValue(static function ($value, $user) {
-                return $user->getAvatarUrl();
+            ->formatValue(static function ($value,?User $user) {
+                return $user?->getAvatarUrl();
             });
         yield ImageField::new('avatar')
             ->onlyOnForms()
@@ -68,9 +74,30 @@ class UserCrudController extends AbstractCrudController
             ->setChoices(array_combine($roles, $roles))
             ->allowMultipleChoices()
             ->renderExpanded()
-            ->renderAsBadges();
+            ->renderAsBadges()
+            ->setPermission('ROLE_SUPER_ADMIN');
+    }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+            ->setEntityPermission('ADMIN_USER_EDIT');
+    }
 
+    public function createIndexQueryBuilder(
+        SearchDto        $searchDto,
+        EntityDto        $entityDto,
+        FieldCollection  $fields,
+        FilterCollection $filters
+    ): QueryBuilder {
+        $query = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+        if($this->isGranted('ROLE_SUPER_ADMIN')){
+            return $query;
+        }
+
+        return $query->andWhere('entity.id = :id')
+            ->setParameter('id', $this->getUser()->getId());
     }
 
 }
