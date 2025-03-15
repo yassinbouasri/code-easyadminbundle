@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use function Symfony\Component\String\u;
 
 #[ORM\Entity(QuestionRepository::class)]
 class Question
@@ -203,5 +204,9 @@ class Question
     public function setUpdatedBy(User $updatedBy): void
     {
         $this->updatedBy = $updatedBy;
+    }
+    public function __toString(): string
+    {
+        return u( $this->getQuestion())->truncate(25,'...', false);
     }
 }
