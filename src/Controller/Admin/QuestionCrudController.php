@@ -7,7 +7,6 @@ use App\Entity\Question;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -16,7 +15,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
+//#[IsGranted("ROLE_SUPER_ADMIN")] // Restricting Access to an Entire Crud Section
 class QuestionCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
@@ -51,8 +52,8 @@ class QuestionCrudController extends AbstractCrudController
             ->setTextAlign('center');
         yield AssociationField::new('askedBy')
             ->autocomplete()
-            ->formatValue(static function ($value,Question $question) {
-                if (!$user = $question->getAskedBy()) {
+            ->formatValue(static function ($value,?Question $question) {
+                if (!$user = $question?->getAskedBy()) {
                     return null;
                 }
                 return sprintf('%s&nbsp;(%s)',$user->getEmail(), $user->getQuestions()->count());
