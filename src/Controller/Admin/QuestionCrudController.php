@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use App\EasyAdmin\VotesField;
 use App\Entity\Question;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -68,6 +70,9 @@ class QuestionCrudController extends AbstractCrudController
             ->setFormTypeOption('by_reference', false);
         yield DateField::new('createdAt')
             ->onlyOnIndex();
+
+        yield AssociationField::new('updatedBy')
+            ->onlyOnDetail();
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -98,5 +103,23 @@ class QuestionCrudController extends AbstractCrudController
             ->add('votes')
             ->add('name');
     }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        //Same as create a Event Subscriber
+        if (!$entityInstance instanceof Question){
+            return;
+        }
+        $user = $this->getUser();
+
+        if (!$user instanceof User){
+            throw new \LogicException('User should be an instance of User');
+        }
+
+        $entityInstance->setUpdatedBy($user);
+
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
 
 }
