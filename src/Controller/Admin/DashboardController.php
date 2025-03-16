@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -54,12 +55,16 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class)
-                      ->setPermission('ROLE_MODERATOR')
-                      ->setController(QuestionCrudController::class);
-        yield MenuItem::linkToCrud('Pending Approval', 'far fa-question-circle', Question::class)
-                      ->setPermission('ROLE_MODERATOR')
-                      ->setController(QuestionPendingApprovalCrudController::class);
+        yield MenuItem::subMenu('Questions', 'fas fa-question-circle')
+            ->setSubItems([
+                                MenuItem::linkToCrud('All', 'fa fa-list', Question::class)
+                                            ->setPermission('ROLE_MODERATOR')
+                                            ->setController(QuestionCrudController::class),
+                                MenuItem::linkToCrud('Pending Approval', 'far fa-warning', Question::class)
+                                              ->setPermission('ROLE_MODERATOR')
+                                              ->setController(QuestionPendingApprovalCrudController::class),
+                          ]);
+
         yield MenuItem::linkToCrud('Answers', 'fas fa-comments', Answer::class);
         yield MenuItem::linkToCrud('Topics', 'fas fa-folder', Topic::class);
         yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
