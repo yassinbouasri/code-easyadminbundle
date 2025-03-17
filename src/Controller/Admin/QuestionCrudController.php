@@ -87,6 +87,12 @@ class QuestionCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
+            ->update(Crud::PAGE_INDEX,Action::DELETE, function (Action $action) {
+                $action->displayIf(static function (Question $question) {
+                    return !$question->getAskedBy();
+                });
+                return $action;
+            })
             ->setPermission(Action::INDEX, 'ROLE_MODERATOR')
             ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
             ->setPermission(Action::DELETE, 'ROLE_SUPER_ADMIN')
@@ -119,6 +125,15 @@ class QuestionCrudController extends AbstractCrudController
         $entityInstance->setUpdatedBy($user);
 
         parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance->getIsApproved()) {
+            throw new \Exception('Deleting approved question is forbidden');
+        }
+
+        parent::deleteEntity($entityManager, $entityInstance);
     }
 
 
