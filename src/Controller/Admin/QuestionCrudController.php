@@ -97,6 +97,13 @@ class QuestionCrudController extends AbstractCrudController
                   ->setLabel('View on site');
         };
 
+        $approveAction =  Action::new('approve')
+                ->linkToCrudAction('approve')
+                ->addCssClass('btn btn-success')
+                ->setIcon('fas fa-check-circle')
+                ->setTemplatePath('admin/approve_action.html.twig')
+                ->displayAsButton();
+
         return parent::configureActions($actions)
 //            ->update(Crud::PAGE_INDEX,Action::DELETE, function (Action $action) {
 //                $action->displayIf(static function (Question $question) {
@@ -110,7 +117,8 @@ class QuestionCrudController extends AbstractCrudController
             ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
             ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN')
             ->add(Action::DETAIL,$viewAction()->addCssClass('btn btn-sm btn-success'))
-            ->add(Action::INDEX, $viewAction());
+            ->add(Action::INDEX, $viewAction())
+            ->add(Action::DETAIL, $approveAction);
     }
 
     public function configureFilters(Filters $filters): Filters
