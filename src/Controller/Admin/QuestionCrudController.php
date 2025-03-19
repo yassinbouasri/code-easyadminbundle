@@ -39,43 +39,57 @@ class QuestionCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return parent::configureCrud($crud)->setDefaultSort(
-            [
-                'askedBy.enabled' => 'DESC',
-                'createdAt'       => 'DESC',
-            ]
-        );
+        return parent::configureCrud($crud)
+                     ->setDefaultSort(
+                         [
+                             'askedBy.enabled' => 'DESC',
+                             'createdAt'       => 'DESC',
+                         ]
+                     );
     }
 
     public function configureActions(Actions $actions): Actions
     {
         $viewAction = function ()
             {
-                return Action::NEW('view')->linkToUrl(
-                    function (Question $question)
-                        {
-                            return $this->generateUrl(
-                                'app_question_show',
-                                [
-                                    'slug' => $question->getSlug(),
-                                ]
-                            );
-                        }
-                )->setIcon('fas fa-eye')->setLabel('View on site');
+                return Action::NEW('view')
+                             ->linkToUrl(
+                                 function (Question $question)
+                                     {
+                                         return $this->generateUrl(
+                                             'app_question_show',
+                                             [
+                                                 'slug' => $question->getSlug(),
+                                             ]
+                                         );
+                                     }
+                             )
+                             ->setIcon('fas fa-eye')
+                             ->setLabel('View on site');
             };
 
-        $approveAction = Action::new('approve')->linkToCrudAction('approve')->addCssClass('btn btn-success')->setIcon(
-            'fas fa-check-circle'
-        )->setTemplatePath('admin/approve_action.html.twig')->displayIf(
-            static function (Question $question): bool
-                {
-                    return !$question->getIsApproved();
-                }
-        )->displayAsButton();
+        $approveAction = Action::new('approve')
+                               ->linkToCrudAction('approve')
+                               ->addCssClass('btn btn-success')
+                               ->setIcon(
+                                   'fas fa-check-circle'
+                               )
+                               ->setTemplatePath('admin/approve_action.html.twig')
+                               ->displayIf(
+                                   static function (Question $question): bool
+                                       {
+                                           return !$question->getIsApproved();
+                                       }
+                               )
+                               ->displayAsButton();
 
-        $exportAction = Action::new('export')->linkToCrudAction('export')->addCssClass('btn btn-secondary')->setIcon(
-            'fas fa-download'
-        )->createAsGlobalAction();
+        $exportAction = Action::new('export')
+                              ->linkToCrudAction('export')
+                              ->addCssClass('btn btn-secondary')
+                              ->setIcon(
+                                  'fas fa-download'
+                              )
+                              ->createAsGlobalAction();
 
         return parent::configureActions($actions)
 //            ->update(Crud::PAGE_INDEX,Action::DELETE, function (Action $action) {
@@ -84,29 +98,37 @@ class QuestionCrudController extends AbstractCrudController
 //                });
 //                return $action;
 //            })
-            ->setPermission(Action::INDEX, 'ROLE_MODERATOR')
-            ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
-            ->setPermission(Action::DELETE, 'ROLE_SUPER_ADMIN')
-            ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
-            ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN')
-            ->add(Crud::PAGE_DETAIL, $viewAction()->addCssClass('btn btn-sm btn-success'))
-            ->add(Crud::PAGE_INDEX, $viewAction())
-            ->add(Crud::PAGE_DETAIL, $approveAction)
-            ->add(Crud::PAGE_INDEX, $exportAction)
-            ->reorder(Crud::PAGE_DETAIL, [
-                'approve',
-                'view',
-                Action::EDIT,
-                Action::INDEX,
-                Action::DELETE,
-            ]);
+                     ->setPermission(Action::INDEX, 'ROLE_MODERATOR')
+                     ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
+                     ->setPermission(Action::DELETE, 'ROLE_SUPER_ADMIN')
+                     ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
+                     ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN')
+                     ->add(Crud::PAGE_DETAIL, $viewAction()->addCssClass('btn btn-sm btn-success'))
+                     ->add(Crud::PAGE_INDEX, $viewAction())
+                     ->add(Crud::PAGE_DETAIL, $approveAction)
+                     ->add(Crud::PAGE_INDEX, $exportAction)
+                     ->reorder(
+                         Crud::PAGE_DETAIL,
+                         [
+                             'approve',
+                             'view',
+                             Action::EDIT,
+                             Action::INDEX,
+                             Action::DELETE,
+                         ]
+                     );
     }
 
     public function configureFilters(Filters $filters): Filters
     {
-        return parent::configureFilters($filters)->add('topic')->add('askedBy')->add('createdAt')->add('votes')->add(
-            'name'
-        );
+        return parent::configureFilters($filters)
+                     ->add('topic')
+                     ->add('askedBy')
+                     ->add('createdAt')
+                     ->add('votes')
+                     ->add(
+                         'name'
+                     );
     }
 
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
@@ -140,7 +162,9 @@ class QuestionCrudController extends AbstractCrudController
         EntityManagerInterface $entityManager,
         AdminUrlGenerator $adminUrlGenerator
     ): RedirectResponse {
-        $question = $adminContext->getEntity()->getInstance();
+        $question = $adminContext
+            ->getEntity()
+            ->getInstance();
 
         if (!$question instanceof Question) {
             throw new LogicException('Question should be an instance of Question');
@@ -148,9 +172,13 @@ class QuestionCrudController extends AbstractCrudController
         $question->setIsApproved(true);
         $entityManager->flush();
 
-        $targetUrl = $adminUrlGenerator->setController(self::class)->setAction(Crud::PAGE_INDEX)->setEntityId(
-            $question->getId()
-        )->generateUrl();
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->setEntityId(
+                $question->getId()
+            )
+            ->generateUrl();
 
         return $this->redirect($targetUrl);
     }
@@ -158,11 +186,15 @@ class QuestionCrudController extends AbstractCrudController
     public function export(AdminContext $context, CsvExporter $csvExporter)
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
-        $filters = $this->container->get(FilterFactory::class)->create(
-            $context->getCrud()->getFiltersConfig(),
-            $fields,
-            $context->getEntity()
-        );
+        $filters = $this->container
+            ->get(FilterFactory::class)
+            ->create(
+                $context
+                    ->getCrud()
+                    ->getFiltersConfig(),
+                $fields,
+                $context->getEntity()
+            );
         $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
 
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'questions.csv');
@@ -170,53 +202,75 @@ class QuestionCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnIndex();
+        yield IdField::new('id')
+                     ->onlyOnIndex();
 
         yield FormField::addTab('Basic Info');
 
-        yield Field::new('slug')->hideOnIndex()->setFormTypeOption('disabled', $pageName !== Crud::PAGE_NEW);
-        yield TextField::new('name');
+        yield TextField::new('name')
+                       ->setColumns(5);
+        yield Field::new('slug')
+                   ->hideOnIndex()
+                   ->setFormTypeOption('disabled', $pageName !== Crud::PAGE_NEW)
+                   ->setColumns(5);
 
 
-
-        yield AssociationField::new('topic')->autocomplete();
-        yield TextAreaField::new('question')->hideOnIndex()->setFormTypeOptions(
-            [
-                'row_attr' => [
-                    'data-controller' => 'snarkdown',
-                ],
-                'attr'     => [
-                    'data-snarkdown-target' => 'input',
-                    'data-action'           => 'snarkdown#render',
-                ],
-            ]
-        )->setHelp('Preview:');
+        yield AssociationField::new('topic')
+                              ->autocomplete();
+        yield TextAreaField::new('question')
+                           ->hideOnIndex()
+                           ->setFormTypeOptions(
+                               [
+                                   'row_attr' => [
+                                       'data-controller' => 'snarkdown',
+                                   ],
+                                   'attr'     => [
+                                       'data-snarkdown-target' => 'input',
+                                       'data-action'           => 'snarkdown#render',
+                                   ],
+                               ]
+                           )
+                           ->setHelp('Preview:');
 
         yield FormField::addTab('Details')
                        ->setIcon('fas fa-info')
                        ->setHelp('Additional Details');
 
-        yield VotesField::new('votes', 'Total votes')->setTextAlign('center');
-        yield AssociationField::new('askedBy')->autocomplete()->formatValue(
-            static function ($value, ?Question $question)
-                {
-                    if (!$user = $question?->getAskedBy()) {
-                        return null;
-                    }
+        yield VotesField::new('votes', 'Total votes')
+                        ->setTextAlign('center');
+        yield AssociationField::new('askedBy')
+                              ->autocomplete()
+                              ->formatValue(
+                                  static function ($value, ?Question $question)
+                                      {
+                                          if (!$user = $question?->getAskedBy()) {
+                                              return null;
+                                          }
 
-                    return sprintf('%s&nbsp;(%s)', $user->getEmail(), $user->getQuestions()->count());
-                }
-        )->setQueryBuilder(
-            function (QueryBuilder $queryBuilder)
-                {
-                    $queryBuilder->andWhere('entity.enabled = :enabled');
-                    $queryBuilder->setParameter('enabled', true);
-                }
-        );
-        yield AssociationField::new('answers')->autocomplete()->setFormTypeOption('by_reference', false);
-        yield DateField::new('createdAt')->onlyOnIndex();
+                                          return sprintf(
+                                              '%s&nbsp;(%s)',
+                                              $user->getEmail(),
+                                              $user
+                                                  ->getQuestions()
+                                                  ->count()
+                                          );
+                                      }
+                              )
+                              ->setQueryBuilder(
+                                  function (QueryBuilder $queryBuilder)
+                                      {
+                                          $queryBuilder->andWhere('entity.enabled = :enabled');
+                                          $queryBuilder->setParameter('enabled', true);
+                                      }
+                              );
+        yield AssociationField::new('answers')
+                              ->autocomplete()
+                              ->setFormTypeOption('by_reference', false);
+        yield DateField::new('createdAt')
+                       ->onlyOnIndex();
 
-        yield AssociationField::new('updatedBy')->onlyOnDetail();
+        yield AssociationField::new('updatedBy')
+                              ->onlyOnDetail();
     }
 
 }
