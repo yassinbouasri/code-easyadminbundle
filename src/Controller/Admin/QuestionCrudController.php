@@ -19,6 +19,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -170,8 +171,15 @@ class QuestionCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->onlyOnIndex();
+
+        yield FormField::addPanel('Basic Info')
+            ->collapsible();
+
         yield Field::new('slug')->hideOnIndex()->setFormTypeOption('disabled', $pageName !== Crud::PAGE_NEW);
         yield TextField::new('name');
+
+
+
         yield AssociationField::new('topic')->autocomplete();
         yield TextAreaField::new('question')->hideOnIndex()->setFormTypeOptions(
             [
@@ -184,6 +192,8 @@ class QuestionCrudController extends AbstractCrudController
                 ],
             ]
         )->setHelp('Preview:');
+        yield FormField::addPanel('Details')
+                       ->collapsible();
         yield VotesField::new('votes', 'Total votes')->setTextAlign('center');
         yield AssociationField::new('askedBy')->autocomplete()->formatValue(
             static function ($value, ?Question $question)
