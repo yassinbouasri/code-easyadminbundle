@@ -192,8 +192,12 @@ class QuestionCrudController extends AbstractCrudController
                 ],
             ]
         )->setHelp('Preview:');
+
         yield FormField::addPanel('Details')
-                       ->collapsible();
+                       ->collapsible()
+                       ->setIcon('fas fa-info')
+                       ->setHelp('Additional Details');
+
         yield VotesField::new('votes', 'Total votes')->setTextAlign('center');
         yield AssociationField::new('askedBy')->autocomplete()->formatValue(
             static function ($value, ?Question $question)
