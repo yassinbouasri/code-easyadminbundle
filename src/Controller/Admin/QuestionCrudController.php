@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
@@ -18,7 +19,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 //#[IsGranted("ROLE_SUPER_ADMIN")] // Restricting Access to an Entire Crud Section
 class QuestionCrudController extends AbstractCrudController
@@ -102,6 +106,9 @@ class QuestionCrudController extends AbstractCrudController
                 ->addCssClass('btn btn-success')
                 ->setIcon('fas fa-check-circle')
                 ->setTemplatePath('admin/approve_action.html.twig')
+                ->displayIf(static function (Question $question): bool {
+                    return !$question->getIsApproved();
+                })
                 ->displayAsButton();
 
         return parent::configureActions($actions)
@@ -158,4 +165,22 @@ class QuestionCrudController extends AbstractCrudController
     }
 
 
+    public function approve(AdminContext $adminContext, EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator): RedirectResponse
+    {
+        $question = $adminContext->getEntity()->getInstance();
+
+        if (!$question instanceof Question){
+            throw new \LogicException('Question should be an instance of Question');
+        }
+        $question->setIsApproved(true);
+        $entityManager->flush();
+
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->setEntityId($question->getId())
+            ->generateUrl();
+
+        return $this->redirect($targetUrl);
+    }
 }
