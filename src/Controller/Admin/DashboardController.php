@@ -33,6 +33,8 @@ class DashboardController extends AbstractDashboardController
     #[Route('/admin', name: 'admin')]
     public function index(ChartBuilderInterface $chartBuilder = null): Response
     {
+
+
         assert($chartBuilder !== null);
 
         $latestQuestions = $this->questionRepository->findLatest();
@@ -80,7 +82,8 @@ class DashboardController extends AbstractDashboardController
 
     public function configureDashboard(): Dashboard
     {
-        return Dashboard::new()->setTitle('Cauldron Overflow Admin');
+        return Dashboard::new()
+                        ->setTitle('Cauldron Overflow Admin');
     }
 
     public function configureMenuItems(): iterable
@@ -88,25 +91,29 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::section('Content');
-        yield MenuItem::subMenu('Questions', 'fas fa-question-circle')->setSubItems(
-            [
-                MenuItem::linkToCrud('All', 'fa fa-list', Question::class)
-                    ->setPermission('ROLE_MODERATOR')
-                    ->setController(QuestionCrudController::class),
-                MenuItem::linkToCrud('Pending Approval', 'far fa-warning', Question::class)->setPermission(
-                        'ROLE_MODERATOR'
-                    )->setController(QuestionPendingApprovalCrudController::class),
-            ]
-        );
+        yield MenuItem::subMenu('Questions', 'fas fa-question-circle')
+                      ->setSubItems(
+                          [
+                              MenuItem::linkToCrud('All', 'fa fa-list', Question::class)
+                                      ->setPermission('ROLE_MODERATOR')
+                                      ->setController(QuestionCrudController::class),
+                              MenuItem::linkToCrud('Pending Approval', 'fa fa-warning', Question::class)
+                                      ->setPermission(
+                                          'ROLE_MODERATOR'
+                                      )
+                                      ->setController(QuestionPendingApprovalCrudController::class),
+                          ]
+                      );
 
         yield MenuItem::linkToCrud('Answers', 'fas fa-comments', Answer::class);
         yield MenuItem::linkToCrud('Topics', 'fas fa-folder', Topic::class);
         yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
         yield MenuItem::section();
         yield MenuItem::linkToUrl('HomePage', 'fa fa-home', $this->generateUrl('app_homepage'));
-        yield MenuItem::linkToUrl('StackOverflow', 'fab fa-stack-overflow', 'https://stackoverflow.com')->setLinkTarget(
-                '_blank'
-            );
+        yield MenuItem::linkToUrl('StackOverflow', 'fab fa-stack-overflow', 'https://stackoverflow.com')
+                      ->setLinkTarget(
+                          '_blank'
+                      );
     }
 
     protected function generateUrl(
@@ -119,29 +126,51 @@ class DashboardController extends AbstractDashboardController
 
     public function configureActions(): Actions
     {
-        return parent::configureActions()->add(Crud::PAGE_INDEX, Action::DETAIL);
+        return parent::configureActions()
+                     ->add(Crud::PAGE_INDEX, Action::DETAIL)
+                     ->update(
+                         Crud::PAGE_DETAIL,
+                         Action::EDIT,
+                         function (Action $action)
+                             {
+                                 return $action->setIcon('far fa-edit');
+                             }
+                     )
+                     ->update(
+                         Crud::PAGE_DETAIL,
+                         Action::INDEX,
+                         function (Action $action)
+                             {
+                                 return $action->setIcon('fa fa-list');
+                             }
+                     );
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu
     {
-        return parent::configureUserMenu($user)->setAvatarUrl($user->getAvatarUrl())->addMenuItems(
-            [
-                MenuItem::linkToUrl('My Profile', 'fas fa-user', $this->generateUrl('app_profile_show')),
-            ]
-        );
+        return parent::configureUserMenu($user)
+                     ->setAvatarUrl($user->getAvatarUrl())
+                     ->addMenuItems(
+                         [
+                             MenuItem::linkToUrl('My Profile', 'fas fa-user', $this->generateUrl('app_profile_show')),
+                         ]
+                     );
     }
 
     public function configureCrud(): Crud
     {
-        return parent::configureCrud()->setDefaultSort(['id' => 'DESC'])->overrideTemplate(
-                'crud/field/id',
-                'admin/id_with_icon.html.twig'
-            );
+        return parent::configureCrud()
+                     ->setDefaultSort(['id' => 'DESC'])
+                     ->overrideTemplate(
+                         'crud/field/id',
+                         'admin/id_with_icon.html.twig'
+                     );
     }
 
     public function configureAssets(): Assets
     {
-        return parent::configureAssets()->addWebpackEncoreEntry('admin');
+        return parent::configureAssets()
+                     ->addWebpackEncoreEntry('admin');
     }
 
 
