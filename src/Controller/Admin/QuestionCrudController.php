@@ -172,8 +172,7 @@ class QuestionCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->onlyOnIndex();
 
-        yield FormField::addPanel('Basic Info')
-            ->collapsible();
+        yield FormField::addTab('Basic Info');
 
         yield Field::new('slug')->hideOnIndex()->setFormTypeOption('disabled', $pageName !== Crud::PAGE_NEW);
         yield TextField::new('name');
@@ -193,8 +192,7 @@ class QuestionCrudController extends AbstractCrudController
             ]
         )->setHelp('Preview:');
 
-        yield FormField::addPanel('Details')
-                       ->collapsible()
+        yield FormField::addTab('Details')
                        ->setIcon('fas fa-info')
                        ->setHelp('Additional Details');
 
